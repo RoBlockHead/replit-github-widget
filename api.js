@@ -70,19 +70,6 @@ const gqlRequest = async (name, query, variables) => {
 		query: query,
 		variables: vari
 	}
-	// var gqlForm = new FormData();
-	// gqlForm.append('operationName', name);
-	// gqlForm.append('query', query);
-	// gqlForm.append('variables', vari);
-
-	// var headers = new Headers({
-	// 	'Accept': 'application/json',
-	// 	'x-requested-with': 'ReplitGithubWidget',
-	// 	'cookie': 'connect.sid='+null
-	// });
-	console.log(gqlPayload);
-	
-	// http
 
 	var res = await fetch('https://replit.com/graphql', {
 		method: 'POST',
@@ -98,12 +85,6 @@ const gqlRequest = async (name, query, variables) => {
 		body: JSON.stringify(gqlPayload),
 	});
 	var json = await res.json();
-	console.log(json)
+	// console.log(json)
 	return json.data;
 }
-// function getFormData(object) {
-//     const formData = new FormData();
-// 		for(var i; i<)
-//     Object.keys(object).forEach(key => formData.append(key, object[key]));
-//     return formData;
-// }

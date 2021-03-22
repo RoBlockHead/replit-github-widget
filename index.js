@@ -4,9 +4,10 @@
 //
 import express from 'express';
 import { getUserInfo } from './api.js';
-import userSvg, { getUserPng } from './userSVG.js';
-import ssap from 'save-svg-as-png';
-const { svgAsPngUri } = ssap;
+import cors from 'cors';
+import userSvg, {svgToPng} from './userSVG.js';
+// import ssap from 'save-svg-as-png';
+// const { svgAsPngUri } = ssap;
 import isbot from 'isbot';
 const app = express();
 // import { getUserImage } from './imageGen.js';
@@ -15,13 +16,12 @@ const DEBUG = true;
 app.use((req, res, next) => {
 	res.on('finish', () => {
 		console.log(
-			`[${getDateString(Date.now())}] ${req.method} ${req.path} - ${
-				res.statusCode
-			}`
+			`[${getDateString(Date.now())}] ${req.method} ${req.path} - ${res.statusCode} ${req.get('user-agent')}`
 		);
 	});
 	next();
 });
+app.use(cors());
 app.use(express.static('./static'));
 app.route('/').get((req, res) => {
 	// if(DEBUG) res.set({'Content-Type':'image/svg+xml'}).end(userSvg());
@@ -30,10 +30,15 @@ app.route('/').get((req, res) => {
 
 app.route('/api/user/:username').get(async (req, res) => {
 	try {
-		// if(req.query.png == "1") {
-
-		// }
-
+		if(req.query.png == "1") {
+			let img = await svgToPng(req.params.username)
+			res.set({
+				'Content-Type':'image/png',
+				'Content-Length': img.length,
+			});
+			res.end(img);
+		}
+		else{
 		// let imgBuffer = await getUserImage(req.params.username);
 		// var img = Buffer.from(imgBuffer, 'base64');
 
@@ -45,7 +50,7 @@ app.route('/api/user/:username').get(async (req, res) => {
 		// 	username: req.params.username
 		// }, (err, str) => {
 		// if(isbot(req.get('user-agent')) || req.query.png == "1"){
-		// // if(true){
+		// // // if(true){
 		// 	// const user = await userSvg(req.params.username, {unStringified: true});
 		// 	res.set({
 		// 		'Content-Type': 'image/png'
@@ -63,7 +68,7 @@ app.route('/api/user/:username').get(async (req, res) => {
 			// 'Content-Length': img.length,
 		});
 		res.end(user);
-		// }
+		}
 	} catch (err) {
 		console.error(err);
 		res.status(503).send(err);
